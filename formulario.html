@@ -38,7 +38,7 @@
         <p class="subtitle">Bootcamp de los 5 Días</p>
     </header>
     
-    <form action="https://script.google.com/macros/s/AKfycbzaF_1WNGWO9PHyrCCd8J6ZoIO8FykISY0n1cVbO4AP0EkfnpOmspa-CVIxIwnATvLU/exec" method="POST">
+   <form id="mi-formulario">
         
         <div class="form-group">
             <label>Nombre Completo:</label>
@@ -80,49 +80,46 @@
 </div>
 
 <script>
-    // Configuración de las fases por día
-    const esquemaFases = {
-        "1": ["F1: Sanación Cognitiva", "F2: Integración Directa", "F3: Aislamiento (u)", "F4: Retorno a x", "F5: Reto Final"],
-        "2": ["F1: Choque de Engranajes", "F2: Aislamiento (ILATE)", "F3: Bucle Tabular", "F4: Integrales Cíclicas", "F5: Reto Final"],
-        "3": ["F1: Sanación (Álgebra)", "F2: Aislamiento (Estructura)", "F3: Reto Final"],
-        "4": ["F1: Sanación (Identidades)", "F2: Aislamiento (Triángulo)", "F3: Reto Final"],
-        "5": ["F1: Aislamiento Visual", "F2: El Gran Reto Final"]
-    };
+    const FORM_URL = "https://script.google.com/macros/s/AKfycbzaF_1WNGWO9PHyrCCd8J6ZoIO8FykISY0n1cVbO4AP0EkfnpOmspa-CVIxIwnATvLU/exec";
 
-    function actualizarFases() {
-        const dia = document.getElementById('dia_selector').value;
-        const contenedor = document.getElementById('contenedor_fases');
-        const cuadrante = document.getElementById('seccion_cuadrante');
+    document.getElementById('mi-formulario').addEventListener('submit', function(e) {
+        e.preventDefault(); 
         
-        contenedor.innerHTML = ''; // Limpiar fases anteriores
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerText;
+        btn.innerText = "Enviando...";
+        btn.disabled = true;
 
-        if (dia && esquemaFases[dia]) {
-            cuadrante.style.display = 'block'; // Mostrar selector de cuadrante
-            
-            esquemaFases[dia].forEach((nombreFase, index) => {
-                const faseNum = index + 1;
-                const card = document.createElement('div');
-                card.className = 'phase-card';
-                
-                card.innerHTML = `
-                    <h4>${nombreFase}</h4>
-                    <div class="grid">
-                        <div>
-                            <label>IET (%)</label>
-                            <input type="number" name="D${dia}_F${faseNum}_IET" min="0" max="500" required>
-                        </div>
-                        <div>
-                            <label>Aciertos (%)</label>
-                            <input type="number" name="D${dia}_F${faseNum}_ACC" min="0" max="100" required>
-                        </div>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
-        } else {
-            cuadrante.style.display = 'none';
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+
+        // Convertimos los datos al formato que Google Script prefiere
+        for (const pair of formData) {
+            params.append(pair[0], pair[1]);
         }
-    }
+
+        fetch(FORM_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        })
+        .then(() => {
+            alert("¡Métricas enviadas con éxito, ProFE!");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            this.reset(); 
+            document.getElementById('contenedor_fases').innerHTML = '';
+            document.getElementById('seccion_cuadrante').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Hubo un error al enviar. Por favor, intenta de nuevo.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    });
 </script>
 
 </body>
