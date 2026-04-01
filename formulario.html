@@ -10,18 +10,13 @@
         .container { max-width: 600px; width: 100%; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 8px solid var(--primary); }
         header { text-align: center; margin-bottom: 25px; }
         .logo { max-width: 100%; height: auto; margin-bottom: 15px; }
-        h2 { color: var(--primary); margin: 5px 0; }
-        p { color: #5f6368; font-size: 1.1em; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 5px; }
         input, select { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        .phase-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 15px; animation: fadeIn 0.3s ease-in; }
-        .phase-card h4 { margin-top: 0; margin-bottom: 10px; color: #3c4043; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
+        .phase-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 15px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        #btn-enviar { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: background 0.3s; }
-        #btn-enviar:hover { background: #1557b0; }
+        #btn-enviar { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         #btn-enviar:disabled { background: #ccc; cursor: not-allowed; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -36,18 +31,18 @@
     <form id="form-bootcamp">
         <div class="form-group">
             <label>Nombre Completo:</label>
-            <input type="text" name="Nombre" id="Nombre" required placeholder="Tu nombre">
+            <input type="text" id="Nombre" name="Nombre" required>
         </div>
         <div class="form-group">
             <label>Número de Identidad:</label>
-            <input type="text" name="Identidad" id="Identidad" required placeholder="Documento">
+            <input type="text" id="Identidad" name="Identidad" required>
         </div>
         <div class="form-group">
             <label>Día del Bootcamp:</label>
-            <select id="dia_selector" name="Dia_Bootcamp" required>
+            <select id="dia_selector" name="Dia_Bootcamp" onchange="actualizarFases()" required>
                 <option value="">-- Selecciona el día --</option>
-                <option value="1">Día 1: Cimientos y Visión Periférica</option>
-                <option value="2">Día 2: Desarmando el Producto (Partes)</option>
+                <option value="1">Día 1: Cimientos</option>
+                <option value="2">Día 2: Por Partes</option>
                 <option value="3">Día 3: Fracciones Parciales</option>
                 <option value="4">Día 4: Trigonométricas</option>
                 <option value="5">Día 5: Estrategia Final</option>
@@ -66,7 +61,7 @@
             </select>
         </div>
 
-        <button type="button" id="btn-enviar">Enviar Métricas al ProFE</button>
+        <button type="button" id="btn-enviar" onclick="enviarDatos()">Enviar Métricas al ProFE</button>
     </form>
 </div>
 
@@ -74,67 +69,49 @@
     const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzaF_1WNGWO9PHyrCCd8J6ZoIO8FykISY0n1cVbO4AP0EkfnpOmspa-CVIxIwnATvLU/exec";
 
     const esquemaFases = {
-        "1": ["F1: Sanación Cognitiva", "F2: Integración Directa", "F3: Aislamiento u", "F4: Retorno a x", "F5: Reto Final"],
-        "2": ["F1: Sanación (Signos)", "F2: Aislamiento (ILATE)", "F3: Bucle Tabular", "F4: Integrales Cíclicas", "F5: Reto Final"],
-        "3": ["F1: Sanación (Álgebra)", "F2: Aislamiento (Estructura)", "F3: Reto Final"],
-        "4": ["F1: Sanación (Identidades)", "F2: Aislamiento (Triángulo)", "F3: Reto Final"],
-        "5": ["F1: Aislamiento Visual", "F2: El Gran Reto Final"]
+        "1": ["F1: Sanación", "F2: Directas", "F3: Aislamiento u", "F4: Retorno x", "F5: Reto Final"],
+        "2": ["F1: Sanación", "F2: ILATE", "F3: Tabular", "F4: Cíclicas", "F5: Reto Final"],
+        "3": ["F1: Álgebra", "F2: Estructura", "F3: Reto Final"],
+        "4": ["F1: Identidades", "F2: Triángulo", "F3: Reto Final"],
+        "5": ["F1: Clasificación", "F2: Gran Reto Final"]
     };
 
-    const selector = document.getElementById('dia_selector');
-    const contenedor = document.getElementById('contenedor_fases');
-    const cuadrante = document.getElementById('seccion_cuadrante');
-
-    // Despliegue de fases estandarizado
-    selector.addEventListener('change', function() {
-        const dia = this.value;
+    function actualizarFases() {
+        const dia = document.getElementById('dia_selector').value;
+        const contenedor = document.getElementById('contenedor_fases');
         contenedor.innerHTML = '';
-        
-        if (dia && esquemaFases[dia]) {
-            cuadrante.style.display = 'block';
-            esquemaFases[dia].forEach((nombreFase, i) => {
-                const faseNum = i + 1;
-                const card = document.createElement('div');
-                card.className = 'phase-card';
-                // AQUÍ ESTÁ EL CAMBIO CLAVE: "name" ahora es siempre F1_IET, F2_IET, etc.
-                card.innerHTML = `
-                    <h4>${nombreFase}</h4>
-                    <div class="grid">
-                        <div>
-                            <label>IET %</label>
-                            <input type="number" name="F${faseNum}_IET" required>
-                        </div>
-                        <div>
-                            <label>Aciertos %</label>
-                            <input type="number" name="F${faseNum}_ACC" required>
-                        </div>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
-        } else {
-            cuadrante.style.display = 'none';
-        }
-    });
+        document.getElementById('seccion_cuadrante').style.display = dia ? 'block' : 'none';
 
-    // Envío ciego a Google Sheets
-    document.getElementById('btn-enviar').addEventListener('click', function() {
-        const btn = this;
+        if(dia) {
+            esquemaFases[dia].forEach((fase, i) => {
+                const div = document.createElement('div');
+                div.className = 'phase-card';
+                // AQUÍ DEJAMOS LA CORRECCIÓN DE NOMBRES ESTÁNDAR (F1_IET, F1_ACC, etc.)
+                div.innerHTML = `<h4>${fase}</h4><div class="grid">
+                    <div><label>IET %</label><input type="number" name="F${i+1}_IET" required></div>
+                    <div><label>Aciertos %</label><input type="number" name="F${i+1}_ACC" required></div>
+                </div>`;
+                contenedor.appendChild(div);
+            });
+        }
+    }
+
+    function enviarDatos() {
+        const btn = document.getElementById('btn-enviar');
         const form = document.getElementById('form-bootcamp');
         
-        if (!form.Nombre.value || !form.Identidad.value || !form.Dia_Bootcamp.value) {
-            alert("Por favor, completa tu nombre, identidad y selecciona un día.");
+        if (!form.Nombre.value || !form.Dia_Bootcamp.value) {
+            alert("Completa los datos básicos.");
             return;
         }
 
         btn.disabled = true;
-        btn.innerText = "Enviando datos...";
+        btn.innerText = "Enviando...";
 
         const datos = new URLSearchParams();
         const elementos = form.querySelectorAll("input, select");
-        
         elementos.forEach(el => {
-            if (el.name && el.value) {
+            if(el.name && el.value) {
                 datos.append(el.name, el.value);
             }
         });
@@ -146,20 +123,19 @@
             body: datos.toString()
         })
         .then(() => {
-            alert("¡Métricas registradas con éxito, ProFE!");
+            alert("¡Métricas enviadas con éxito, ProFE!");
             form.reset();
-            contenedor.innerHTML = '';
-            cuadrante.style.display = 'none';
+            actualizarFases();
             btn.disabled = false;
             btn.innerText = "Enviar Métricas al ProFE";
         })
         .catch(err => {
             console.error(err);
-            alert("Error de red. Tus datos no se pudieron enviar, intenta de nuevo.");
+            alert("Error al enviar. Revisa tu conexión.");
             btn.disabled = false;
             btn.innerText = "Enviar Métricas al ProFE";
         });
-    });
+    }
 </script>
 </body>
 </html>
