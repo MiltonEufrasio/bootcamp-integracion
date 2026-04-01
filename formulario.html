@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Métricas - ProFE</title>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f0f2f5; --card: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 600px; width: 100%; background: var(--card); padding: 30px; border-radius: 12px; shadow: 0 4px 12px rgba(0,0,0,0.1); border-top: 10px solid var(--primary); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .phase-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        button:hover { background: #1557b0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Registro de Métricas</h2>
+        <p style="text-align:center; color: #666;">Bootcamp de Integración</p>
+        
+        <form action="PEGAR_AQUI_TU_URL_DE_GOOGLE_APPS_SCRIPT" method="POST">
+            <div class="form-group">
+                <label>Nombre Completo:</label>
+                <input type="text" name="Nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Número de Identidad:</label>
+                <input type="text" name="Identidad" required>
+            </div>
+            <div class="form-group">
+                <label>Día del Bootcamp:</label>
+                <select id="dia" name="Dia_Bootcamp" required onchange="generarFases()">
+                    <option value="">-- Selecciona --</option>
+                    <option value="1">Día 1: Cimientos</option>
+                    <option value="2">Día 2: Por Partes</option>
+                    <option value="3">Día 3: Fracciones Parciales</option>
+                    <option value="4">Día 4: Trigonométricas</option>
+                    <option value="5">Día 5: Estrategia Final</option>
+                </select>
+            </div>
+
+            <div id="fases"></div>
+
+            <div class="form-group">
+                <label>¿En qué cuadrante de la Matriz terminaste?</label>
+                <select name="Cuadrante" required>
+                    <option value="I">I: Fluidez (Rápido/Preciso)</option>
+                    <option value="II">II: Sobrecarga (Lento/Preciso)</option>
+                    <option value="III">III: Brecha (Lento/Impreciso)</option>
+                    <option value="IV">IV: Impulsividad (Rápido/Impreciso)</option>
+                </select>
+            </div>
+            <button type="submit">Enviar a mi ProFE</button>
+        </form>
+    </div>
+
+    <script>
+        const config = {
+            "1": ["F1: Sanación", "F2: Directas", "F3: Elegir u", "F4: Retorno x", "F5: Reto Final"],
+            "2": ["F1: Deriv vs Int", "F2: Elección ILATE", "F3: Bucle Tabular", "F4: Reto Final"],
+            "3": ["F1: Álgebra", "F2: Estructura", "F3: Reto Final"],
+            "4": ["F1: Identidades", "F2: Triángulo", "F3: Reto Final"],
+            "5": ["F1: Clasificación", "F2: Reto Jefe Maestro"]
+        };
+
+        function generarFases() {
+            const dia = document.getElementById('dia').value;
+            const contenedor = document.getElementById('fases');
+            contenedor.innerHTML = '';
+            if(!dia) return;
+
+            config[dia].forEach((fase, i) => {
+                const div = document.createElement('div');
+                div.className = 'phase-card';
+                div.innerHTML = `<h4>${fase}</h4><div class="grid">
+                    <div><label>IET %</label><input type="number" name="D${dia}_F${i+1}_IET" required></div>
+                    <div><label>Aciertos %</label><input type="number" name="D${dia}_F${i+1}_Acc" required></div>
+                </div>`;
+                contenedor.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
