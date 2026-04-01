@@ -6,27 +6,17 @@
     <title>Registro de Métricas - ProFE</title>
     <style>
         :root { --primary: #1a73e8; --bg: #f0f2f5; --card: #ffffff; --text: #202124; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
         .container { max-width: 650px; width: 100%; background: var(--card); padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 10px solid var(--primary); }
-        
         header { text-align: center; margin-bottom: 30px; }
         .logo { max-width: 500px; width: 100%; height: auto; margin-bottom: 15px; }
-        h1 { color: var(--primary); font-size: 1.8em; margin: 10px 0; }
-        p.subtitle { color: #5f6368; font-size: 1.1em; }
-
         .form-group { margin-bottom: 20px; }
         label { display: block; font-weight: 600; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
-
-        .phase-card { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 6px solid var(--primary); margin-bottom: 20px; animation: fadeIn 0.4s; }
-        .phase-card h4 { margin: 0 0 15px 0; color: #3c4043; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 6px; box-sizing: border-box; }
+        .phase-card { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 6px solid var(--primary); margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 20px; transition: background 0.3s; }
-        button:hover { background: #1557b0; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #btn-enviar { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        #btn-enviar:disabled { background: #ccc; }
     </style>
 </head>
 <body>
@@ -35,92 +25,105 @@
     <header>
         <img src="images/membrete_profe.png" alt="ProFE" class="logo">
         <h1>Integrales sin Límite</h1>
-        <p class="subtitle">Bootcamp de los 5 Días</p>
+        <p>Bootcamp de los 5 Días</p>
     </header>
     
-   <form id="mi-formulario">
-        
+    <form id="form-bootcamp">
         <div class="form-group">
             <label>Nombre Completo:</label>
-            <input type="text" name="Nombre" placeholder="Ej: Milton Alvarado" required>
+            <input type="text" name="Nombre" required>
         </div>
-
         <div class="form-group">
             <label>Número de Identidad:</label>
-            <input type="text" name="Identidad" placeholder="Documento de identidad" required>
+            <input type="text" name="Identidad" required>
         </div>
-
         <div class="form-group">
-            <label>Día del Bootcamp que registras:</label>
-            <select id="dia_selector" name="Dia_Bootcamp" required onchange="actualizarFases()">
-                <option value="">-- Selecciona el Día --</option>
-                <option value="1">Día 1: Cimientos y Visión Periférica</option>
-                <option value="2">Día 2: Desarmando el Producto (Partes)</option>
-                <option value="3">Día 3: Rompecabezas Algebraico (Parciales)</option>
-                <option value="4">Día 4: Universo Trigonométrico</option>
-                <option value="5">Día 5: Estrategia Global</option>
+            <label>Día del Bootcamp:</label>
+            <select id="dia_selector" name="Dia_Bootcamp" onchange="actualizarFases()" required>
+                <option value="">-- Selecciona --</option>
+                <option value="1">Día 1: Cimientos</option>
+                <option value="2">Día 2: Por Partes</option>
+                <option value="3">Día 3: Fracciones Parciales</option>
+                <option value="4">Día 4: Trigonométricas</option>
+                <option value="5">Día 5: Estrategia Final</option>
             </select>
         </div>
 
         <div id="contenedor_fases"></div>
 
         <div class="form-group" id="seccion_cuadrante" style="display:none;">
-            <label>Según tu Reto Final, ¿en qué cuadrante terminaste?</label>
-            <select name="Cuadrante" required>
-                <option value="">-- Selecciona Cuadrante --</option>
-                <option value="I">I: Fluidez (Rápido y Preciso)</option>
-                <option value="II">II: Sobrecarga (Lento pero Preciso)</option>
-                <option value="III">III: Brecha (Lento e Impreciso)</option>
-                <option value="IV">IV: Impulsividad (Rápido pero Impreciso)</option>
+            <label>¿En qué cuadrante terminaste?</label>
+            <select name="Cuadrante">
+                <option value="I">I: Fluidez</option>
+                <option value="II">II: Sobrecarga</option>
+                <option value="III">III: Brecha</option>
+                <option value="IV">IV: Impulsividad</option>
             </select>
         </div>
 
-        <button type="submit">Enviar Métricas al ProFE</button>
+        <button type="button" id="btn-enviar" onclick="enviarDatos()">Enviar Métricas al ProFE</button>
     </form>
 </div>
 
 <script>
-    const FORM_URL = "https://script.google.com/macros/s/AKfycbzaF_1WNGWO9PHyrCCd8J6ZoIO8FykISY0n1cVbO4AP0EkfnpOmspa-CVIxIwnATvLU/exec";
+    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzaF_1WNGWO9PHyrCCd8J6ZoIO8FykISY0n1cVbO4AP0EkfnpOmspa-CVIxIwnATvLU/exec";
 
-    document.getElementById('mi-formulario').addEventListener('submit', function(e) {
-        e.preventDefault(); 
-        
-        const btn = e.target.querySelector('button');
-        const originalText = btn.innerText;
-        btn.innerText = "Enviando...";
-        btn.disabled = true;
+    const esquemaFases = {
+        "1": ["F1: Sanación", "F2: Directas", "F3: Aislamiento u", "F4: Retorno x", "F5: Reto Final"],
+        "2": ["F1: Sanación", "F2: ILATE", "F3: Tabular", "F4: Cíclicas", "F5: Reto Final"],
+        "3": ["F1: Álgebra", "F2: Estructura", "F3: Reto Final"],
+        "4": ["F1: Identidades", "F2: Triángulo", "F3: Reto Final"],
+        "5": ["F1: Clasificación", "F2: Gran Reto Final"]
+    };
 
-        const formData = new FormData(this);
-        const params = new URLSearchParams();
+    function actualizarFases() {
+        const dia = document.getElementById('dia_selector').value;
+        const contenedor = document.getElementById('contenedor_fases');
+        contenedor.innerHTML = '';
+        document.getElementById('seccion_cuadrante').style.display = dia ? 'block' : 'none';
 
-        // Convertimos los datos al formato que Google Script prefiere
-        for (const pair of formData) {
-            params.append(pair[0], pair[1]);
+        if(dia) {
+            esquemaFases[dia].forEach((fase, i) => {
+                const div = document.createElement('div');
+                div.className = 'phase-card';
+                div.innerHTML = `<h4>${fase}</h4><div class="grid">
+                    <div><label>IET %</label><input type="number" name="D${dia}_F${i+1}_IET"></div>
+                    <div><label>Aciertos %</label><input type="number" name="D${dia}_F${i+1}_ACC"></div>
+                </div>`;
+                contenedor.appendChild(div);
+            });
         }
+    }
 
-        fetch(FORM_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
+    function enviarDatos() {
+        const btn = document.getElementById('btn-enviar');
+        const formulario = document.getElementById('form-bootcamp');
+        const formData = new FormData(formulario);
+        const queryString = new URLSearchParams(formData).toString();
+
+        btn.disabled = true;
+        btn.innerText = "Enviando...";
+
+        // El "Hack" definitivo: enviar como una petición de texto plano para saltar CORS
+        fetch(GOOGLE_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: queryString
         })
         .then(() => {
             alert("¡Métricas enviadas con éxito, ProFE!");
-            btn.innerText = originalText;
+            formulario.reset();
+            actualizarFases();
             btn.disabled = false;
-            this.reset(); 
-            document.getElementById('contenedor_fases').innerHTML = '';
-            document.getElementById('seccion_cuadrante').style.display = 'none';
+            btn.innerText = "Enviar Métricas al ProFE";
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("Hubo un error al enviar. Por favor, intenta de nuevo.");
-            btn.innerText = originalText;
+        .catch(err => {
+            alert("Error al enviar. Revisa tu conexión.");
             btn.disabled = false;
+            btn.innerText = "Enviar Métricas al ProFE";
         });
-    });
+    }
 </script>
-
 </body>
 </html>
