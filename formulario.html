@@ -79,40 +79,26 @@
         "5": ["F1: Aislamiento Visual", "F2: El Gran Reto Final"]
     };
 
-    const selector = document.getElementById('dia_selector');
-    const contenedor = document.getElementById('contenedor_fases');
-    const cuadrante = document.getElementById('seccion_cuadrante');
-
-    // Lógica para desplegar las fases automáticamente
-    selector.addEventListener('change', function() {
-        const dia = this.value;
-        contenedor.innerHTML = '';
-        
-        if (dia && esquemaFases[dia]) {
-            cuadrante.style.display = 'block';
-            esquemaFases[dia].forEach((nombreFase, i) => {
-                const faseNum = i + 1;
-                const card = document.createElement('div');
-                card.className = 'phase-card';
-                card.innerHTML = `
-                    <h4>${nombreFase}</h4>
-                    <div class="grid">
-                        <div>
-                            <label>IET %</label>
-                            <input type="number" name="D${dia}_F${faseNum}_IET" required>
-                        </div>
-                        <div>
-                            <label>Aciertos %</label>
-                            <input type="number" name="D${dia}_F${faseNum}_ACC" required>
-                        </div>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
-        } else {
-            cuadrante.style.display = 'none';
-        }
-    });
+   // MODIFICADO: Ahora los nombres de los inputs son genéricos (F1, F2...)
+esquemaFases[dia].forEach((nombreFase, i) => {
+    const faseNum = i + 1;
+    const card = document.createElement('div');
+    card.className = 'phase-card';
+card.innerHTML = `
+    <h4>${nombreFase}</h4>
+    <div class="grid">
+        <div>
+            <label>IET %</label>
+            <input type="number" name="F${faseNum}_IET" required>
+        </div>
+        <div>
+            <label>Aciertos %</label>
+            <input type="number" name="F${faseNum}_ACC" required>
+        </div>
+    </div>
+`;
+    contenedor.appendChild(card);
+});
 
     // Lógica de envío blindada
     document.getElementById('btn-enviar').addEventListener('click', function() {
