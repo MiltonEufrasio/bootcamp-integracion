@@ -1,29 +1,359 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Bootcamp Integración - ProFE</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f4f9; padding: 50px; }
-        .card { background: white; padding: 20px; margin: 10px auto; max-width: 400px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        a { text-decoration: none; color: #1a73e8; font-weight: bold; }
-        .btn-form { display: inline-block; margin-top: 30px; padding: 15px 25px; background: #1a73e8; color: white; border-radius: 5px; }
-    </style>
-    <link rel="icon" type="image/png" href="images/favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integrales sin Límite · Bootcamp de 5 días · ProFE</title>
+<meta name="description" content="Bootcamp gratuito de 5 días para dominar las técnicas de integración con entrenamiento neurocognitivo: cronómetro, autocorrección y métricas de fluidez.">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=Caveat:wght@600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6f8fb;
+    --grid: rgba(20, 33, 61, 0.06);
+    --surface: #ffffff;
+    --ink: #14213d;
+    --graphite: #55606f;
+    --line: #d5dbe4;
+    --red: #d62839;
+    --red-ink: #ffffff;
+    --mastery: #1f8a70;
+    --q-fill: rgba(31, 138, 112, 0.10);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0f1626;
+      --grid: rgba(220, 230, 245, 0.05);
+      --surface: #172036;
+      --ink: #e9eef7;
+      --graphite: #a3aec0;
+      --line: #2c3854;
+      --red: #ff5a67;
+      --red-ink: #1a0b0e;
+      --mastery: #4cc9a4;
+      --q-fill: rgba(76, 201, 164, 0.14);
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+  body {
+    margin: 0;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--red); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 1.25rem; }
+  .membrete { max-width: 640px; margin: 1.5rem auto 0; padding: 0 1.25rem; }
+  .membrete img { margin: 0 auto; }
+
+  h1, h2, h3 { font-family: "Archivo", "Arial Narrow", sans-serif; line-height: 1.05; margin: 0; }
+  h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; font-stretch: 85%; letter-spacing: -0.01em; }
+  .lead { color: var(--graphite); max-width: 62ch; }
+
+  /* Hero */
+  .hero { padding: 3.5rem 0 3rem; display: grid; gap: 2rem; }
+  .hero h1 {
+    font-size: clamp(3rem, 11vw, 7.5rem);
+    font-weight: 900;
+    font-stretch: 75%;
+    letter-spacing: -0.02em;
+    line-height: 0.92;
+  }
+  .hero h1 .integral {
+    font-family: "Times New Roman", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--red);
+    font-size: 1.15em;
+    margin-right: 0.05em;
+    vertical-align: -0.08em;
+  }
+  .hero .sub { font-family: "Archivo", sans-serif; font-stretch: 110%; font-weight: 600; font-size: clamp(1.1rem, 2.4vw, 1.4rem); margin: 1rem 0 0; }
+  .hero .lead { font-size: 1.15rem; margin: 1rem 0 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.75rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 48px; padding: 0.7rem 1.4rem; border-radius: 6px;
+    font: 600 1rem "Source Sans 3", sans-serif; text-decoration: none; cursor: pointer;
+    border: 2px solid var(--ink);
+  }
+  .btn-primary { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost { background: transparent; color: var(--ink); }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn[aria-disabled="true"] { border-color: var(--line); color: var(--graphite); cursor: default; background: transparent; }
+  .note {
+    font-family: "Caveat", cursive; color: var(--red); font-size: 1.5rem; line-height: 1.1;
+    transform: rotate(-2deg); display: inline-block; margin-top: 1rem;
+  }
+
+  section { padding: 3rem 0; }
+  section > .wrap > p.lead { margin: 0.75rem 0 0; }
+
+  /* Reglas */
+  .rules { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .rules li { background: var(--surface); padding: 1.1rem 1.25rem; display: grid; grid-template-columns: 2.5rem 1fr; gap: 0.75rem; align-items: baseline; }
+  .rules .n { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 1.6rem; color: var(--red); }
+  .rules strong { display: block; font-weight: 600; }
+  .rules span.d { color: var(--graphite); }
+
+  /* Ruta de 5 días */
+  .route { list-style: none; padding: 0; margin: 2rem 0 0; position: relative; }
+  .route::before { content: ""; position: absolute; left: 1.4rem; top: 0.5rem; bottom: 0.5rem; width: 2px; background: var(--line); }
+  .day { position: relative; padding: 0 0 2rem 4rem; }
+  .day:last-child { padding-bottom: 0; }
+  .day .dot {
+    position: absolute; left: 0; top: 0;
+    width: 2.8rem; height: 2.8rem; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--paper); border: 2px solid var(--ink);
+    font: 900 1.15rem "Archivo", sans-serif;
+  }
+  .day h3 { font-size: clamp(1.3rem, 3vw, 1.65rem); font-weight: 800; font-stretch: 90%; }
+  .day .topic { font-weight: 600; margin: 0.25rem 0 0; }
+  .day .tech { color: var(--red); font-weight: 600; margin: 0.15rem 0 0; }
+  .day p.desc { color: var(--graphite); margin: 0.4rem 0 0.9rem; max-width: 60ch; }
+  .day .links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .day .btn { min-height: 44px; padding: 0.5rem 1.1rem; }
+
+  /* Diagnóstico */
+  .diag { display: grid; gap: 2rem; margin-top: 2rem; align-items: start; }
+  .plane-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; }
+  .plane { width: 100%; max-width: 420px; margin: 0 auto; display: block; }
+  .plane text { font-family: "Archivo", sans-serif; font-size: 12px; fill: var(--graphite); }
+  .plane .qname { font-weight: 800; font-size: 13px; fill: var(--ink); }
+  .plane .axis { stroke: var(--ink); stroke-width: 1.5; }
+  .plane .q { fill: transparent; transition: fill 0.25s; }
+  .plane .q.on { fill: var(--q-fill); }
+  .plane #punto { fill: var(--red); transition: cx 0.2s, cy 0.2s; }
+  .controls { display: grid; gap: 1.25rem; }
+  .controls label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+  .controls output { font-family: "Archivo", sans-serif; font-weight: 800; color: var(--red); }
+  input[type="range"] { width: 100%; accent-color: var(--red); min-height: 32px; }
+  .result { border-left: 4px solid var(--mastery); background: var(--surface); padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; }
+  .result h3 { font-size: 1.35rem; font-weight: 800; }
+  .result p { margin: 0.4rem 0 0; color: var(--graphite); }
+  .result.alerta { border-left-color: var(--red); }
+
+  /* Métricas */
+  .metrics { background: var(--ink); color: var(--paper); border-radius: 12px; padding: 2.25rem 1.5rem; display: grid; gap: 1.25rem; }
+  .metrics h2 { color: var(--paper); }
+  .metrics p { margin: 0; max-width: 60ch; opacity: 0.85; }
+  .metrics .btn-primary { justify-self: start; }
+
+  footer { padding: 2.5rem 0 3rem; color: var(--graphite); font-size: 0.95rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  footer a { font-weight: 600; }
+
+  @media (min-width: 820px) {
+    .hero { grid-template-columns: 1fr; padding-top: 4.5rem; }
+    .rules { grid-template-columns: 1fr 1fr; }
+    .rules li:last-child { grid-column: 1 / -1; }
+    .diag { grid-template-columns: 1.1fr 1fr; }
+    .metrics { grid-template-columns: 1fr auto; align-items: center; padding: 2.5rem; }
+    .metrics .btn-primary { justify-self: end; }
+  }
+</style>
 </head>
 <body>
-    <div style="text-align: center; margin-bottom: 20px;">
-    <img src="images/membrete_profe.png" alt="Membrete ProFE" style="width: 100%; max-width: 800px; height: auto;">
-</div>
-    <h1>Integrales sin Límite: El Bootcamp de los 5 Días</h1>
-    <p>Revisa el manual y luego selecciona el material del día y al terminar registra tus métricas.</p>
-    <div class="card">Manual <a href="https://drive.google.com/file/d/1iNe54NEA4TOMmbVwEgXt_dkBnA4v1qZ1/view?usp=sharing" target="_blank">Descargar Guía</a></div>    
-    <div class="card">Día 1: <a href="https://drive.google.com/file/d/1STNgr4hZ4XLGoj9HFKZ43DcObdbZx5YI/view?usp=sharing" target="_blank">Descargar Guía</a></div>
-    <div class="card">Día 2: <a href="TU_LINK_DRIVE_DIA3" target="_blank">Descargar Guía</a></div>
-    <div class="card">Día 3: <a href="TU_LINK_DRIVE_DIA3" target="_blank">Descargar Guía</a></div>
-    <div class="card">Día 4: <a href="TU_LINK_DRIVE_DIA4" target="_blank">Descargar Guía</a></div>
-    <div class="card">Día 5: <a href="TU_LINK_DRIVE_DIA5" target="_blank">Descargar Guía</a></div>
 
-    <a href="formulario.html" class="btn-form">IR AL FORMULARIO DE MÉTRICAS</a>
+<div class="membrete">
+  <img src="images/membrete_profe.png" alt="ProFE">
+</div>
+
+<header class="wrap hero">
+  <div>
+    <h1><span class="integral" aria-hidden="true">∫</span>Integrales sin Límite</h1>
+    <p class="sub">Bootcamp de 5 días para integrar con fluidez</p>
+    <p class="lead">Integrar no es memorizar fórmulas: es no saturar tu memoria de trabajo. En cinco sesiones con cronómetro pasas de un cálculo lento y agotador a reconocer el método casi de inmediato, y mides tu avance con datos reales.</p>
+    <div class="actions">
+      <a class="btn btn-primary" id="btn-manual" href="#" target="_blank" rel="noopener">Descargar el manual</a>
+      <a class="btn btn-ghost" href="#ruta">Ver la ruta de 5 días</a>
+    </div>
+    <span class="note">Empieza por el manual: ahí están las reglas del juego.</span>
+  </div>
+</header>
+
+<section aria-labelledby="t-reglas">
+  <div class="wrap">
+    <h2 id="t-reglas">Las 5 reglas del entrenamiento</h2>
+    <p class="lead">Cada guía está diseñada con base en la ciencia del aprendizaje. Funciona solo si respetas estas reglas.</p>
+    <ol class="rules">
+      <li><span class="n">1</span><div><strong>Usa el cronómetro</strong><span class="d">Un poco de presión mantiene tu atención al máximo. Estudiar del todo relajado da una falsa sensación de dominio.</span></div></li>
+      <li><span class="n">2</span><div><strong>Respeta las reglas de cada fase</strong><span class="d">Si la guía prohíbe el lápiz o pide solo elegir u, hazlo así. Aislar la habilidad es lo que la fortalece.</span></div></li>
+      <li><span class="n">3</span><div><strong>No mires las soluciones antes de tiempo</strong><span class="d">Revisa solo al terminar todo el bloque. La incomodidad de la duda es donde ocurre el aprendizaje.</span></div></li>
+      <li><span class="n">4</span><div><strong>Corrige en rojo</strong><span class="d">No borres tus errores: etiquétalos. ¿Signo, fracción, mala elección de u? Cada error es un dato.</span></div></li>
+      <li><span class="n">5</span><div><strong>Mide aciertos y tiempo</strong><span class="d">Acertar todo tardando el triple todavía no es dominio. La meta es precisión y velocidad juntas.</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<section id="ruta" aria-labelledby="t-ruta">
+  <div class="wrap">
+    <h2 id="t-ruta">La ruta de 5 días</h2>
+    <p class="lead">Cada día une una técnica de integración con una herramienta de aprendizaje.</p>
+    <ol class="route" id="lista-dias"></ol>
+  </div>
+</section>
+
+<section aria-labelledby="t-diag">
+  <div class="wrap">
+    <h2 id="t-diag">Diagnostica tu sesión</h2>
+    <p class="lead">Mueve los controles con tus resultados de una fase y mira en qué cuadrante está tu cerebro y qué hacer a continuación.</p>
+    <div class="diag">
+      <div class="plane-box">
+        <svg class="plane" viewBox="0 0 300 300" role="img" aria-labelledby="plane-title">
+          <title id="plane-title">Plano de diagnóstico: velocidad en el eje horizontal y precisión en el vertical</title>
+          <rect class="q" id="q2" x="20" y="20" width="130" height="130"/>
+          <rect class="q" id="q1" x="150" y="20" width="130" height="130"/>
+          <rect class="q" id="q3" x="20" y="150" width="130" height="130"/>
+          <rect class="q" id="q4" x="150" y="150" width="130" height="130"/>
+          <line class="axis" x1="20" y1="150" x2="280" y2="150"/>
+          <line class="axis" x1="150" y1="20" x2="150" y2="280"/>
+          <text class="qname" x="85" y="45" text-anchor="middle">Sobrecarga</text>
+          <text class="qname" x="215" y="45" text-anchor="middle">Fluidez</text>
+          <text class="qname" x="85" y="265" text-anchor="middle">Brecha</text>
+          <text class="qname" x="215" y="265" text-anchor="middle">Impulsividad</text>
+          <text x="276" y="166" text-anchor="end">más rápido</text>
+          <text x="24" y="166">más lento</text>
+          <text x="156" y="16">más preciso</text>
+          <text x="156" y="296">menos preciso</text>
+          <circle id="punto" cx="200" cy="100" r="9"/>
+        </svg>
+      </div>
+      <div class="controls">
+        <div>
+          <label for="aciertos">Aciertos: <output id="o-aciertos">85 %</output></label>
+          <input type="range" id="aciertos" min="0" max="100" step="5" value="85">
+        </div>
+        <div>
+          <label for="tiempo">Tiempo usado frente al tiempo meta: <output id="o-tiempo">80 %</output></label>
+          <input type="range" id="tiempo" min="50" max="200" step="5" value="80">
+        </div>
+        <div class="result" id="resultado" aria-live="polite">
+          <h3 id="r-titulo"></h3>
+          <p id="r-texto"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="t-metricas">
+  <div class="wrap">
+    <div class="metrics">
+      <div>
+        <h2 id="t-metricas">Registra tus métricas</h2>
+        <p>Al terminar cada fase, reporta tu porcentaje de aciertos, tu tiempo y tu índice de esfuerzo (qué tan pesada se sintió la tarea, de 0 a 100 %). Así ves tu evolución día a día.</p>
+      </div>
+      <a class="btn btn-primary" href="formulario.html">Registrar mis métricas</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Diseñado por Milton E. Alvarado P. · ProFE</span>
+    <a id="link-canal" href="#" target="_blank" rel="noopener" hidden>Ver los videos en YouTube</a>
+  </div>
+</footer>
+
+<script>
+  /* ====== EDITA AQUÍ ======
+     Pega los enlaces de Drive de cada guía. Si un enlace queda vacío (""),
+     el botón aparece como "Disponible pronto" en lugar de un enlace roto.
+     El campo "video" es opcional: cuando tengas el video de YouTube del día, pégalo ahí. */
+  const MANUAL = "https://drive.google.com/file/d/1iNe54NEA4TOMmbVwEgXt_dkBnA4v1qZ1/view?usp=sharing";
+  const CANAL_YOUTUBE = ""; // ej.: "https://www.youtube.com/@tucanal"
+  const META_ACIERTOS = 80;  // % a partir del cual se considera "preciso"
+
+  const DIAS = [
+    { titulo: "Cimientos y visión periférica", tema: "Sanación algebraica", tecnica: "Reconocimiento de patrones",
+      desc: "Entrenas el ojo para identificar la estructura antes de integrar y reparas el álgebra que te roba energía mental.",
+      guia: "https://drive.google.com/file/d/1STNgr4hZ4XLGoj9HFKZ43DcObdbZx5YI/view?usp=sharing", video: "" },
+    { titulo: "Desarmando el producto", tema: "Integración por partes", tecnica: "Técnica de Feynman",
+      desc: "Eliges u y dv explicando por qué la derivada simplifica la función. Si no puedes explicarlo, la elección está mal.",
+      guia: "", video: "" },
+    { titulo: "El rompecabezas algebraico", tema: "Fracciones parciales", tecnica: "Fragmentación (chunking)",
+      desc: "Agrupas expresiones densas en trozos manejables para buscar coeficientes sin saturar tu memoria de trabajo.",
+      guia: "", video: "" },
+    { titulo: "El universo trigonométrico", tema: "Sustitución y potencias trigonométricas", tecnica: "Codificación dual",
+      desc: "Conectas las identidades con el triángulo rectángulo para convertir el álgebra abstracta en imágenes.",
+      guia: "", video: "" },
+    { titulo: "La batalla final", tema: "Estrategia global", tecnica: "Práctica intercalada",
+      desc: "Problemas mezclados, como en el examen real: decides qué método usar bajo presión de tiempo.",
+      guia: "", video: "" }
+  ];
+  /* ====== FIN DE LA ZONA EDITABLE ====== */
+
+  document.getElementById("btn-manual").href = MANUAL;
+  if (CANAL_YOUTUBE) {
+    const c = document.getElementById("link-canal");
+    c.href = CANAL_YOUTUBE; c.hidden = false;
+  }
+
+  function boton(texto, url, primario) {
+    if (url) {
+      return `<a class="btn ${primario ? "btn-primary" : "btn-ghost"}" href="${url}" target="_blank" rel="noopener">${texto}</a>`;
+    }
+    return primario ? `<span class="btn" aria-disabled="true">Disponible pronto</span>` : "";
+  }
+
+  document.getElementById("lista-dias").innerHTML = DIAS.map((d, i) => `
+    <li class="day">
+      <span class="dot" aria-hidden="true">${i + 1}</span>
+      <h3><span class="sr">Día ${i + 1}: </span>${d.titulo}</h3>
+      <p class="topic">${d.tema}</p>
+      <p class="tech">${d.tecnica}</p>
+      <p class="desc">${d.desc}</p>
+      <div class="links">${boton("Descargar guía", d.guia, true)}${boton("Ver video", d.video, false)}</div>
+    </li>`).join("");
+
+  // Diagnóstico
+  const CUADRANTES = {
+    q1: { t: "Fluidez y maestría", x: "Reconoces los patrones casi de inmediato y el álgebra sale sola. Mantén el ritmo: estás listo para el examen.", ok: true },
+    q2: { t: "Sobrecarga cognitiva", x: "Conoces el camino, pero cada paso te exige esfuerzo consciente. Practica las bases para ganar velocidad y liberar memoria de trabajo." },
+    q3: { t: "Brecha en las bases", x: "Te esfuerzas mucho y aun así no llegas. Detente, vuelve a los temas fundamentales o busca tutoría antes de avanzar." },
+    q4: { t: "Impulsividad", x: "Respondes rápido pero con errores: atajos sin verificar. Frena, analiza antes de integrar y revisa cada paso." }
+  };
+  const aciertos = document.getElementById("aciertos");
+  const tiempo = document.getElementById("tiempo");
+  const punto = document.getElementById("punto");
+
+  function actualizar() {
+    const a = Number(aciertos.value), r = Number(tiempo.value) / 100;
+    document.getElementById("o-aciertos").textContent = a + " %";
+    document.getElementById("o-tiempo").textContent = Math.round(r * 100) + " %";
+    const vx = Math.max(-1, Math.min(1, -Math.log2(r)));
+    const vy = a >= META_ACIERTOS ? (a - META_ACIERTOS) / (100 - META_ACIERTOS) : (a - META_ACIERTOS) / META_ACIERTOS;
+    punto.setAttribute("cx", 150 + vx * 120);
+    punto.setAttribute("cy", 150 - vy * 120);
+    const q = vy >= 0 ? (vx >= 0 ? "q1" : "q2") : (vx < 0 ? "q3" : "q4");
+    document.querySelectorAll(".plane .q").forEach(el => el.classList.toggle("on", el.id === q));
+    document.getElementById("r-titulo").textContent = CUADRANTES[q].t;
+    document.getElementById("r-texto").textContent = CUADRANTES[q].x;
+    document.getElementById("resultado").classList.toggle("alerta", !CUADRANTES[q].ok);
+  }
+  aciertos.addEventListener("input", actualizar);
+  tiempo.addEventListener("input", actualizar);
+  actualizar();
+</script>
+<style>.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }</style>
 </body>
 </html>
