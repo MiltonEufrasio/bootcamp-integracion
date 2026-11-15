@@ -19,10 +19,12 @@ function configurar() {
   sh.getRange('F:F').setNumberFormat('@');  // documento como texto
   const res = ss.getSheetByName('Resumen') || ss.insertSheet('Resumen');
   res.clear();
+  // Separador de argumentos según la configuración regional de la hoja (es-CO usa ";").
+  const sep = ss.getSpreadsheetLocale().indexOf('en') === 0 ? ',' : ';';
   res.getRange('A1').setFormula(
-    "=QUERY(Registros!A:N,\"select B, F, E, G, count(C), avg(K), sum(M) where F is not null " +
+    "=QUERY(Registros!A:N" + sep + "\"select B, F, E, G, count(C), avg(K), sum(M) where F is not null " +
     "group by B, F, E, G order by B, G, E label count(C) 'sesiones completadas', " +
-    "avg(K) 'promedio aciertos (%)', sum(M) 'minutos totales'\",1)");
+    "avg(K) 'promedio aciertos (%)', sum(M) 'minutos totales'\"" + sep + "1)");
 }
 
 function limpiar(v) {
