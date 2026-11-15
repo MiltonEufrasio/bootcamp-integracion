@@ -1,8 +1,39 @@
 /* ---------- Motor común de retos ProFE (usa DATA) ---------- */
 const KEY = DATA.key;
-let S = {answers:{}, boxes:{}, conf:{}, done:{}, warm:{}};
+const EMPTY = () => ({answers:{}, boxes:{}, conf:{}, done:{}, warm:{}, id:null, start:{}, doneAt:{}, sent:{}});
+let S = EMPTY();
 try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) S = Object.assign(S, s); } catch (e) {}
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------- Registro de resultados (Google Sheets vía Apps Script) ---------- */
+const REGISTRO_URL = (window.PROFE_CONFIG && window.PROFE_CONFIG.registroUrl) || "";
+const esc = t => String(t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function pct(keys, qs){ const ans = keys.filter(k => S.answers[k] !== undefined).length;
+  if (!ans) return ""; const ok = keys.filter((k, i) => S.answers[k] === qs[i].a).length; return Math.round(100 * ok / ans); }
+function resultado(id){
+  const s = SESS[id];
+  const warm = (S.warm[id] || (s.prereq || []).map(q => q.id));
+  const wq = warm.map(q => ALLQ[q]), wk = warm.map(q => "w:" + id + ":" + q);
+  const pq = s.practice, tq = s.ticket, all = [...wq, ...pq, ...tq], allk = [...wk, ...pq.map(q => q.id), ...tq.map(q => q.id)];
+  const min = S.start[id] && S.doneAt[id] ? Math.round((S.doneAt[id] - S.start[id]) / 6000) / 10 : "";
+  return {
+    curso: DATA.course, sesion: id, titulo: s.title,
+    nombre: S.id.nombre, documento: S.id.documento, grupo: S.id.grupo,
+    aciertos_calentamiento: pct(wk, wq), aciertos_practica: pct(pq.map(q => q.id), pq),
+    aciertos_ticket: pct(tq.map(q => q.id), tq), aciertos_total: pct(allk, all),
+    confianza: S.conf[id] || "", minutos: min,
+    completado_en: S.doneAt[id] ? new Date(S.doneAt[id]).toLocaleString("es-CO") : ""
+  };
+}
+function enviar(id){
+  if (!REGISTRO_URL || !S.id || !S.done[id] || S.sent[id]) return;
+  fetch(REGISTRO_URL, { method: "POST", mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(resultado(id)).toString() })
+  .then(() => { S.sent[id] = true; save(); const b = document.getElementById("estado-envio"); if (b) b.textContent = "Resultado enviado a tu profesor ✓"; })
+  .catch(() => {});
+}
+function reintentar(){ Object.keys(S.done).forEach(enviar); }
 
 const $app = document.getElementById("app");
 const SESS = DATA.sessions;
@@ -51,6 +82,7 @@ function viewHome(){
       ${S.done[id] ? `<span class="pill ok">Completada</span>` : `<span class="pill go">Abrir</span>`}</a>`;
   }).join("");
   return `<div class="stack">
+   ${viewChip()}
    <section class="sheet stack">
      <div class="stack" style="gap:12px">
        <span class="label">${DATA.course} · reto de cierre</span>
@@ -101,6 +133,7 @@ function qHTML(q, key){
 function viewSession(id){
   const s = SESS[id], r = retoOf(id), pos = r.sessions.indexOf(id) + 1, n = ORDER.indexOf(id);
   const warm = warmFor(id);
+  if (!S.start[id]) { S.start[id] = Date.now(); save(); }
   const conf = S.conf[id];
   const confHTML = [1,2,3,4,5].map(k => `<button data-conf="${k}" data-s="${id}" class="${conf===k?"on":""}" aria-label="Confianza ${k}">${k}</button>`).join("");
   const next = ORDER[n+1];
@@ -127,7 +160,7 @@ function viewSession(id){
       ${s.ticket.map(q => qHTML(q)).join("")}
       <div class="q"><span class="tag">metacognición</span><p>${s.confPrompt} (1 = nada, 5 = podría explicárselo a alguien)</p><div class="conf">${confHTML}</div></div>
       ${S.done[id]
-        ? `<div class="done-banner"><h3>Sesión ${id} completada</h3><p>Lo que fallaste quedó en la caja 1 y saldrá en el próximo calentamiento.</p><div class="row">${next ? `<a class="btn" href="#sesion-${next.toLowerCase()}">Siguiente: ${next} (sugerido ${SESS[next].date})</a>` : ""}<a class="btn ghost" href="#inicio">Volver a los retos</a></div></div>`
+        ? `<div class="done-banner"><h3>Sesión ${id} completada</h3><p>Lo que fallaste quedó en la caja 1 y saldrá en el próximo calentamiento.</p>${REGISTRO_URL ? `<p class="label" id="estado-envio">${S.sent[id] ? "Resultado enviado a tu profesor ✓" : "Enviando tu resultado…"}</p>` : ""}<div class="row">${next ? `<a class="btn" href="#sesion-${next.toLowerCase()}">Siguiente: ${next} (sugerido ${SESS[next].date})</a>` : ""}<a class="btn ghost" href="#inicio">Volver a los retos</a></div></div>`
         : `<p style="color:var(--muted)">Responde el ticket y marca tu nivel de confianza para cerrar la sesión.</p>`}
     </div>
   </section>`;
@@ -150,7 +183,8 @@ function render(){
   let html;
   const r = h.startsWith("reto-") && DATA.retos.find(x => x.L === h.slice(5).toUpperCase());
   const sid = h.startsWith("sesion-") && h.slice(7).toUpperCase();
-  if (r) html = viewReto(r);
+  if (!S.id) html = viewIdentity();
+  else if (r) html = viewReto(r);
   else if (sid && SESS[sid]) html = viewSession(sid);
   else html = viewHome();
   $app.innerHTML = html; typeset();
@@ -175,6 +209,48 @@ $app.addEventListener("click", e => {
   const c = e.target.closest("[data-conf]");
   if (c) { S.conf[c.dataset.s] = +c.dataset.conf; checkDone(c.dataset.s); save(); const y = scrollY; render(); scrollTo(0,y); }
 });
-function checkDone(id){ const s = SESS[id]; if (s.ticket.every(q => S.answers[q.id] !== undefined) && S.conf[id]) S.done[id] = true; }
+function checkDone(id){ const s = SESS[id];
+  if (!S.done[id] && s.ticket.every(q => S.answers[q.id] !== undefined) && S.conf[id]) { S.done[id] = true; S.doneAt[id] = Date.now(); save(); enviar(id); } }
+
+/* ---------- Identificación del estudiante ---------- */
+function viewIdentity(){
+  return `<section class="sheet stack" style="max-width:560px">
+    <div class="stack" style="gap:8px"><span class="label">${DATA.course} · antes de empezar</span>
+      <h1>¿Quién está estudiando?</h1>
+      <p class="lead">Tus datos se usan para que tu profesor vea qué sesiones completaste y te asigne el bono. Escríbelos igual que en la lista de clase.</p></div>
+    <form id="form-id" class="stack" style="gap:14px" novalidate>
+      <div class="field"><label for="id-nombre">Nombre completo</label><input id="id-nombre" name="nombre" autocomplete="name" required minlength="5"></div>
+      <div class="field"><label for="id-documento">Documento de identidad</label><input id="id-documento" name="documento" inputmode="numeric" required pattern="[0-9]{5,12}"><small>Solo números, sin puntos.</small></div>
+      <div class="field"><label for="id-grupo">Grupo</label><input id="id-grupo" name="grupo" required placeholder="Ej.: 01"></div>
+      <p class="form-error" id="id-error" hidden></p>
+      <div class="row"><button class="btn" type="submit">Empezar los retos</button></div>
+    </form>
+  </section>`;
+}
+function viewChip(){
+  return `<div class="chip-id"><span>Estudiando: <strong>${esc(S.id.nombre)}</strong> · grupo ${esc(S.id.grupo)}</span>
+    <span id="salir-zona"><button class="link" type="button" data-salir="1">No soy yo</button></span></div>`;
+}
+$app.addEventListener("submit", e => {
+  if (e.target.id !== "form-id") return;
+  e.preventDefault();
+  const f = e.target, nombre = f.nombre.value.trim().replace(/\s+/g, " "), documento = f.documento.value.replace(/\D/g, ""), grupo = f.grupo.value.trim();
+  const err = document.getElementById("id-error");
+  const msg = nombre.split(" ").length < 2 ? "Escribe tu nombre y al menos un apellido."
+    : !/^[0-9]{5,12}$/.test(documento) ? "El documento debe tener entre 5 y 12 dígitos."
+    : !grupo ? "Escribe tu grupo." : "";
+  if (msg) { err.textContent = msg; err.hidden = false; return; }
+  S.id = { nombre, documento, grupo }; save(); reintentar(); render(); scrollTo(0, 0);
+});
+$app.addEventListener("click", e => {
+  const b = e.target.closest("[data-salir]");
+  if (!b) return;
+  const zona = document.getElementById("salir-zona");
+  if (b.dataset.salir === "1") {
+    zona.innerHTML = `Se borrará el progreso guardado en este dispositivo. <button class="link" type="button" data-salir="2">Sí, cambiar de estudiante</button> <button class="link" type="button" data-salir="0">Cancelar</button>`;
+  } else if (b.dataset.salir === "2") { S = EMPTY(); save(); location.hash = "inicio"; render(); }
+  else render();
+});
 
 render();
+reintentar();
