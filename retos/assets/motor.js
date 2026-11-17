@@ -21,7 +21,7 @@ function resultado(id){
     nombre: S.id.nombre, documento: S.id.documento, grupo: S.id.grupo,
     aciertos_calentamiento: pct(wk, wq), aciertos_practica: pct(pq.map(q => q.id), pq),
     aciertos_ticket: pct(tq.map(q => q.id), tq), aciertos_total: pct(allk, all),
-    confianza: S.conf[id] || "", minutos: min,
+    confianza: S.conf[id] || "", minutos: min, autorizacion: S.id.autorizacion || "",
     completado_en: S.doneAt[id] ? new Date(S.doneAt[id]).toLocaleString("es-CO") : ""
   };
 }
@@ -183,7 +183,7 @@ function render(){
   let html;
   const r = h.startsWith("reto-") && DATA.retos.find(x => x.L === h.slice(5).toUpperCase());
   const sid = h.startsWith("sesion-") && h.slice(7).toUpperCase();
-  if (!S.id) html = viewIdentity();
+  if (!S.id || !S.id.autorizacion) html = viewIdentity();
   else if (r) html = viewReto(r);
   else if (sid && SESS[sid]) html = viewSession(sid);
   else html = viewHome();
@@ -214,14 +214,17 @@ function checkDone(id){ const s = SESS[id];
 
 /* ---------- Identificación del estudiante ---------- */
 function viewIdentity(){
+  const v = S.id || {};
   return `<section class="sheet stack" style="max-width:560px">
     <div class="stack" style="gap:8px"><span class="label">${DATA.course} · antes de empezar</span>
       <h1>¿Quién está estudiando?</h1>
-      <p class="lead">Tus datos se usan para que tu profesor vea qué sesiones completaste y te asigne el bono. Escríbelos igual que en la lista de clase.</p></div>
+      <p class="lead">Pedimos tus datos para retroalimentar tu proceso de enseñanza-aprendizaje: tu profesor ve qué sesiones completaste y en qué temas necesitas refuerzo, y con eso asigna el bono. Escríbelos igual que en la lista de clase.</p></div>
     <form id="form-id" class="stack" style="gap:14px" novalidate>
-      <div class="field"><label for="id-nombre">Nombre completo</label><input id="id-nombre" name="nombre" autocomplete="name" required minlength="5"></div>
-      <div class="field"><label for="id-documento">Documento de identidad</label><input id="id-documento" name="documento" inputmode="numeric" required pattern="[0-9]{5,12}"><small>Solo números, sin puntos.</small></div>
-      <div class="field"><label for="id-grupo">Grupo</label><input id="id-grupo" name="grupo" required placeholder="Ej.: 01"></div>
+      <div class="field"><label for="id-nombre">Nombre completo</label><input id="id-nombre" name="nombre" autocomplete="name" required minlength="5" value="${esc(v.nombre || "")}"></div>
+      <div class="field"><label for="id-documento">Documento de identidad</label><input id="id-documento" name="documento" inputmode="numeric" required pattern="[0-9]{5,12}" value="${esc(v.documento || "")}"><small>Solo números, sin puntos.</small></div>
+      <div class="field"><label for="id-grupo">Grupo</label><input id="id-grupo" name="grupo" required placeholder="Ej.: 01" value="${esc(v.grupo || "")}"></div>
+      <label class="consent" for="id-acepto"><input type="checkbox" id="id-acepto" name="acepto" required>
+        <span>Autorizo a ProFE (Milton E. Alvarado P.) a tratar mis datos (nombre, documento, grupo y resultados de las sesiones) con el fin de retroalimentar mi proceso de enseñanza-aprendizaje, hacer seguimiento a mi avance y asignar el bono del reto, según la <a href="https://profe.net.co/privacidad/" target="_blank" rel="noopener">política de tratamiento de datos</a>.</span></label>
       <p class="form-error" id="id-error" hidden></p>
       <div class="row"><button class="btn" type="submit">Empezar los retos</button></div>
     </form>
@@ -238,9 +241,10 @@ $app.addEventListener("submit", e => {
   const err = document.getElementById("id-error");
   const msg = nombre.split(" ").length < 2 ? "Escribe tu nombre y al menos un apellido."
     : !/^[0-9]{5,12}$/.test(documento) ? "El documento debe tener entre 5 y 12 dígitos."
-    : !grupo ? "Escribe tu grupo." : "";
+    : !grupo ? "Escribe tu grupo."
+    : !f.acepto.checked ? "Para participar debes autorizar el tratamiento de tus datos." : "";
   if (msg) { err.textContent = msg; err.hidden = false; return; }
-  S.id = { nombre, documento, grupo }; save(); reintentar(); render(); scrollTo(0, 0);
+  S.id = { nombre, documento, grupo, autorizacion: new Date().toISOString() }; save(); reintentar(); render(); scrollTo(0, 0);
 });
 $app.addEventListener("click", e => {
   const b = e.target.closest("[data-salir]");
