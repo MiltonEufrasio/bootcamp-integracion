@@ -10,7 +10,7 @@
 const HOJA = 'Registros';
 const COLS = ['recibido', 'curso', 'sesion', 'titulo', 'nombre', 'documento', 'grupo',
   'aciertos_calentamiento', 'aciertos_practica', 'aciertos_ticket', 'aciertos_total',
-  'confianza', 'minutos', 'completado_en'];
+  'confianza', 'minutos', 'completado_en', 'autorizacion'];
 
 function configurar() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
